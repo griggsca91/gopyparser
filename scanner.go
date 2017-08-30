@@ -1,5 +1,7 @@
 package gopyparser
 
+import "io/ioutil"
+
 type Scanner struct {
 	sourceText string
 
@@ -16,6 +18,14 @@ func New(sourceText string) *Scanner {
 	return s
 }
 
-func NewFromFile(filePath string) *Scanner {
+func NewFromFile(filePath string) (*Scanner, error) {
 
+	dat, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		return nil, err
+	}
+	content := string(dat)
+
+	return New(content), nil
 }
