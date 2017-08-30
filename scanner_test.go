@@ -20,6 +20,7 @@ func TestNewFromFile(t *testing.T) {
 	return
 
 main()`), false},
+		{"loading empty file", args{"./pytestfiles/scanner2_empty.py"}, New(``), false},
 		{"Gets Invalid file", args{"./pytestfiles/scanner1_nonexistentfile.py"}, nil, true},
 	}
 	for _, tt := range tests {
@@ -30,7 +31,7 @@ main()`), false},
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewFromFile() = %v, want %v", got, tt.want)
+				t.Errorf("NewFromFile() length: %v = %v, want lenght: %v = %v", len(got.sourceText), got, len(tt.want.sourceText), tt.want)
 			}
 		})
 	}
