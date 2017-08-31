@@ -1,6 +1,11 @@
 package gopyparser
 
-import "io/ioutil"
+import (
+	"unicode/utf8"
+	"unicode"
+	"io/ioutil"
+	"errors"
+)
 
 type Scanner struct {
 	sourceText string
@@ -28,4 +33,28 @@ func NewFromFile(filePath string) (*Scanner, error) {
 	content := string(dat)
 
 	return New(content), nil
+}
+
+func (s *Scanner) peekRune() rune {
+	r, _ := utf8.DecodeRuneInString(s.sourceText)
+	return r 
+}
+
+
+
+func IsSpace(c rune) bool {
+	return uint32(c) == ' '
+}
+
+func IsTab(c rune) bool {
+	return uint32(c) == '\t'
+}
+
+func IsLetter(c rune) bool {
+	return unicode.IsLetter(c)
+}
+
+func IsLineBreak(c rune) bool {
+	b := uint32(c)
+	return b == '\n' || b == '\r' 
 }

@@ -54,7 +54,6 @@ const (
     AtEqual = "AtEqual"
     RArrow = "RArrow"
     Ellipsis = "Ellipsis"
-    /* This table must match the #defines in token.h! */
     Op = "Op"
     Await = "Await"
     Async = "Async"
@@ -65,6 +64,13 @@ const (
     N_Tokens = "<N_Tokens>"
 )
 
+type TokenType string
+
 type Token struct {
-	
+
+    lineIndex int
+    columnIndex int
+
+    tokenType TokenType
+    value string 
 }
