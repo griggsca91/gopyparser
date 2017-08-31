@@ -1,60 +1,87 @@
 package gopyparser
 
 import (
-	"unicode/utf8"
-	"unicode"
-	"io/ioutil"
-	"errors"
+	"bufio"
+	"io"
+	"os"
+	"strings"
+)
+
+const (
+	EOF = rune(0)
 )
 
 type Scanner struct {
-	sourceText string
-
-	lineIndex   int
-	columnIndex int
+	r *bufio.Reader
 }
 
-func New(sourceText string) *Scanner {
+func New(r io.Reader) *Scanner {
 	s := &Scanner{
-		sourceText:  sourceText,
-		lineIndex:   1,
-		columnIndex: 1,
+		r: bufio.NewReader(r),
 	}
 	return s
 }
 
+func NewFromString(s string) *Scanner {
+	return New(strings.NewReader(s))
+}
+
 func NewFromFile(filePath string) (*Scanner, error) {
 
-	dat, err := ioutil.ReadFile(filePath)
-
-	if err != nil {
-		return nil, err
+	r, e := os.Open(filePath)
+	if e != nil {
+		return nil, e
 	}
-	content := string(dat)
-
-	return New(content), nil
+	return New(r), nil
 }
 
-func (s *Scanner) peekRune() rune {
-	r, _ := utf8.DecodeRuneInString(s.sourceText)
-	return r 
+func (s *Scanner) Read() rune {
+	ch, _, err := s.r.ReadRune()
+	if err != nil {
+		return EOF
+	}
+	return ch
 }
 
-
-
-func IsSpace(c rune) bool {
-	return uint32(c) == ' '
+func (s *Scanner) Unread() {
+	_ = s.r.UnreadRune()
 }
 
-func IsTab(c rune) bool {
-	return uint32(c) == '\t'
+func (s *Scanner) NextToken() Token {
+
+	var tok Token
+
+	ch := s.Read()
+	switch ch {
+	case '=':
+		tok = NewToken(Equal, "=")
+	case '(':
+		tok = NewToken(LPar, "(")
+	case ')':
+		tok = NewToken(RPar, ")")
+	default:
+		tok = NewToken(ErrorToken, string(ch))
+	}
+
+	return tok
 }
 
-func IsLetter(c rune) bool {
-	return unicode.IsLetter(c)
+func IsSpace(ch rune) bool {
+	return ch == ' '
+}
+
+func IsTab(ch rune) bool {
+	return ch == '\t'
+}
+
+func IsLetter(ch rune) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+}
+
+func IsDigit(ch rune) bool {
+	return (ch >= '0' && ch <= '9')
 }
 
 func IsLineBreak(c rune) bool {
-	b := uint32(c)
-	return b == '\n' || b == '\r' 
+	return c == '\n' || c == '\r'
 }
