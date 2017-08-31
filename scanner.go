@@ -60,6 +60,9 @@ func (s *Scanner) NextToken() Token {
 	case ')':
 		tok = NewToken(RPar, ")")
 	default:
+		if IsLetter(ch) {
+
+		}
 		tok = NewToken(ErrorToken, string(ch))
 	}
 
